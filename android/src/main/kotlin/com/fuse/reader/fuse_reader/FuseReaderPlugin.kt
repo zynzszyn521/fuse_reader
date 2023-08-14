@@ -1,0 +1,82 @@
+package com.fuse.reader.fuse_reader
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.util.Log
+import androidx.annotation.NonNull
+
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.MethodCall
+import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler
+import io.flutter.plugin.common.MethodChannel.Result
+
+/** FuseReaderPlugin */
+class FuseReaderPlugin: FlutterPlugin, MethodCallHandler {
+
+  private val readCardInterval = 1000L //读卡频率
+  private val timer = Timer()
+  private lateinit var channel : MethodChannel
+  private val CHANNEL_NAME = "com.fuse.reader/methods"
+
+  override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    channel = MethodChannel(flutterPluginBinding.binaryMessenger, CHANNEL_NAME)
+    channel.setMethodCallHandler(this)
+    registerReceiver(flutterPluginBinding.applicationContext)
+  }
+
+  override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+    if (call.method == "getPlatformVersion") {
+      result.success("Android ${android.os.Build.VERSION.RELEASE}")
+    }else if (call.method == "startRead") {
+      //手动读卡
+      result.success("这里返回读卡结果。。。。。")
+    }else if (call.method == "startAutoRead") {
+      // 启动自动读卡任务
+      startAutoReadingCards()
+      result.success("自动读卡任务已启动")
+    } else if (call.method == "stopAutoRead") {
+      // 停止自动读卡任务
+      stopAutoReadingCards()
+       result.success("自动读卡任务已停止")
+    } else {
+      result.notImplemented()
+    }
+  }
+
+  override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+    channel.setMethodCallHandler(null)
+    unregisterReceiver(binding.applicationContext)
+  }
+
+  private fun registerReceiver(context: Context) {
+    //注册
+  }
+
+  private fun unregisterReceiver(context: Context) {
+    //取消注册
+  }
+
+  private fun startAutoReadingCards() {
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                // 自动读卡逻辑
+                val cardInfo = "模拟读取到的卡片信息"
+                sendCardInfo(cardInfo)
+            }
+        }, 0, readCardInterval)
+  }
+
+  private fun stopAutoReadingCards() {
+        timer.cancel()
+  }
+
+  private fun sendCardInfo(cardInfo: String) {
+        // 回传卡片信息，可以在这里调用 MethodChannel 进行回传
+        // channel.invokeMethod("onCardRead", cardInfo)
+  }
+}
+
+
