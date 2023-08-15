@@ -10,8 +10,8 @@ class MethodChannelFuseReader extends FuseReaderPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('com.fuse.reader/methods');
 
-  StreamSubscription<String>? _scanResultSubscription;
-  final StreamController<String> _scanResultStreamController =
+  StreamSubscription<String>? _readResultSubscription;
+  final StreamController<String> _readResultStreamController =
       StreamController<String>.broadcast();
 
   MethodChannelFuseReader() {
@@ -19,37 +19,50 @@ class MethodChannelFuseReader extends FuseReaderPlatform {
   }
 
   @override
-  Future<String?> startScan() async {
+  Future<String?> startRead() async {
     try {
-      final String result = await methodChannel.invokeMethod('startScan');
+      final String result = await methodChannel.invokeMethod('startRead');
       return result;
     } on PlatformException catch (e) {
       if (kDebugMode) {
-        print("Failed to scan barcode: ${e.message}");
+        print("Failed to read: ${e.message}");
       }
       return "";
     }
   }
 
   @override
-  Future<void> stopScan() async {
+  Future<String?> startAutoRead() async {
     try {
-      await methodChannel.invokeMethod<void>('stopScan');
-      _scanResultSubscription?.cancel();
+      final String result = await methodChannel.invokeMethod('startAutoRead');
+      return result;
     } on PlatformException catch (e) {
       if (kDebugMode) {
-        print("Failed to stop scan: ${e.message}");
+        print("Failed to read: ${e.message}");
+      }
+      return "";
+    }
+  }
+
+  @override
+  Future<void> stopAutoRead() async {
+    try {
+      await methodChannel.invokeMethod<void>('stopAutoRead');
+      _readResultSubscription?.cancel();
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        print("Failed to stop read: ${e.message}");
       }
     }
   }
 
   @override
-  Stream<String> get onScanResult => _scanResultStreamController.stream;
+  Stream<String> get onReadResult => _readResultStreamController.stream;
 
   Future<void> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
-      case 'onScanResult':
-        _scanResultStreamController.add(call.arguments as String);
+      case 'onReadResult':
+        _readResultStreamController.add(call.arguments as String);
         break;
       default:
         throw PlatformException(

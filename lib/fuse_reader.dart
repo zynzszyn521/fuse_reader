@@ -5,15 +5,19 @@ abstract class FuseReader {
     return FuseReaderPlatform.instance.getPlatformVersion();
   }
 
-  static Future<String?> startScan() async {
-    return await FuseReaderPlatform.instance.startScan();
+  static Future<String?> startRead() async {
+    return await FuseReaderPlatform.instance.startRead();
   }
 
-  static Future<void> stopScan() async {
-    await FuseReaderPlatform.instance.stopScan();
+  static Future<String?> startAutoRead() async {
+    return await FuseReaderPlatform.instance.startAutoRead();
   }
 
-  static Stream<String> get onScanResult {
-    return FuseReaderPlatform.instance.onScanResult;
+  static Future<void> stopAutoRead() async {
+    await FuseReaderPlatform.instance.stopAutoRead();
+  }
+
+  static Stream<String> get onReadResult {
+    return FuseReaderPlatform.instance.onReadResult;
   }
 }

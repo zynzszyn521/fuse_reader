@@ -1,6 +1,9 @@
 package com.cmcid.myreader.util
 
+import kotlin.experimental.or
+
 object Common {
+
     fun memcpy(desBuf: ByteArray, srcBuf: ByteArray, desOffset: Int, srcOffset: Int, count: Int) {
         for (i in 0 until count) {
             desBuf[desOffset + i] = srcBuf[srcOffset + i]
@@ -42,8 +45,7 @@ object Common {
     }
 
     private fun hex2Word(b: Byte): String {
-        return "" + "0123456789ABCDEF"[0x0f and (b.toInt() shr 4)] +
-                "0123456789ABCDEF"[b.toInt() and 0x0f]
+        return ("" + "0123456789ABCDEF"[0x0f and (b.toInt() shr 4)] + "0123456789ABCDEF"[b.toInt() and 0x0f])
     }
 
     fun arrByte2String(buf: ByteArray, offset: Int, size: Int): String {
@@ -60,19 +62,19 @@ object Common {
     }
 
     fun hexStr2Bytes(src: String, desc: ByteArray, offset: Int, max: Int) {
-        var m: Int
+        var m = 0
         var n: Int
         var l: Int
-        val src = src.replace(" ", "")
+        var str1: String
+        src.replace(" ", "")
         l = src.length / 2
         if (l > max) l = max
-        var str1: String
         for (i in 0 until l) {
             m = i * 2 + 1
             n = m + 1
             str1 = "0x" + src.substring(i * 2, m) + src.substring(m, n)
             try {
-                desc[offset + i] = str1.toInt(16).toByte()
+                desc[offset + i] = Integer.decode(str1).toByte()
             } catch (ex: Exception) {
             }
         }
@@ -92,9 +94,9 @@ object Common {
         val b = desc[offset + 0]
         desc[offset + 0] = desc[offset + 3]
         desc[offset + 3] = b
-        val b2 = desc[offset + 2]
+        val temp = desc[offset + 2]
         desc[offset + 2] = desc[offset + 1]
-        desc[offset + 1] = b2
+        desc[offset + 1] = temp
     }
 
     fun shortH2L(desc: ByteArray, offset: Int) {
@@ -111,15 +113,15 @@ object Common {
 
     fun htons(inValue: Short): Short {
         val a = ((inValue.toInt() and 0xff) shl 8).toShort()
-        val b = ((inValue.toInt() and 0xff00) ushr 8).toShort()
+        val b = ((inValue.toInt() and 0xff00) shr 8).toShort()
         return (a or b).toShort()
     }
 
     fun htonl(inValue: Long): Long {
         val a = ((inValue and 0xff).toInt() shl 24).toLong()
         val b = ((inValue and 0xff00).toInt() shl 8).toLong()
-        val c = ((inValue and 0xff0000) ushr 8).toLong()
-        val d = ((inValue and 0xff000000) ushr 24).toLong()
+        val c = ((inValue and 0xff0000) shr 8).toLong()
+        val d = ((inValue and 0xff000000) shr 24).toLong()
         return a or b or c or d
     }
 
@@ -127,7 +129,7 @@ object Common {
         var num: Long = 0
         for (i in offset until offset + 4) {
             num = num shl 8
-            num = num or (data[i].toInt() and 0xff).toLong()
+            num = num or (data[i].toLong() and 0xff)
         }
         return num
     }
@@ -141,4 +143,11 @@ object Common {
         return num
     }
 
-    fun bcc(data: ByteArray, offset: Int, size: Int
+    fun bcc(data: ByteArray, offset: Int, size: Int): Byte {
+        var b: Byte = 0
+        for (i in 0 until size) {
+            b = (b.toInt() xor data[offset + i].toInt()).toByte()
+        }
+        return b
+    }
+}

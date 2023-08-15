@@ -16,16 +16,20 @@ abstract class FuseReaderPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> startScan() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+  Future<String?> startRead() {
+    throw UnimplementedError('startRead() has not been implemented.');
   }
 
-  Future<void> stopScan() {
-    throw UnimplementedError('stopScan() has not been implemented.');
+  Future<String?> startAutoRead() {
+    throw UnimplementedError('startAutoRead() has not been implemented.');
   }
 
-  Stream<String> get onScanResult {
-    throw UnimplementedError('onScanResult has not been implemented.');
+  Future<void> stopAutoRead() {
+    throw UnimplementedError('stopAutoRead() has not been implemented.');
+  }
+
+  Stream<String> get onReadResult {
+    throw UnimplementedError('onReadResult has not been implemented.');
   }
 
   Future<String?> getPlatformVersion() {

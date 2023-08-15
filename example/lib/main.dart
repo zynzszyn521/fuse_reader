@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -17,17 +19,22 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-  String _scanResult = '';
-  late StreamSubscription<String> _scanResultSubscription;
+  String _readResult = '';
+  late StreamSubscription<String> _readResultSubscription;
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
 
-    _scanResultSubscription = FuseReader.onScanResult.listen((scanResult) {
+    _readResultSubscription = FuseReader.onReadResult.listen((readResult) {
+      // Map<String, dynamic> result = json.decode(readResult);
+      // String cardno = result['cardno'];
+      // String sno = result['sno'];
+      // String empno = result['empno'];
+      // String empname = result['empname'];
       setState(() {
-        _scanResult = scanResult;
+        _readResult = readResult;
       });
     });
   }
@@ -57,12 +64,12 @@ class _MyAppState extends State<MyApp> {
         body: Column(
           children: [
             Text('Running on: $_platformVersion\n'),
-            Text('Scan Data: $_scanResult\n'),
+            Text('Read Data: $_readResult\n'),
             IconButton(
                 onPressed: () {
-                  _startScan();
+                  _startRead();
                 },
-                icon: const Icon(Icons.print)),
+                icon: const Icon(Icons.nfc)),
           ],
         ),
       ),
@@ -71,13 +78,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
-    _scanResultSubscription.cancel();
+    _readResultSubscription.cancel();
     super.dispose();
   }
 
-  void _startScan() async {
+  void _startRead() async {
     try {
-      String? aa = await FuseReader.startScan();
+      String? aa = await FuseReader.startRead();
       print("手動執行掃碼結果：" + aa!);
     } on Exception catch (e) {
       print(e.toString());
