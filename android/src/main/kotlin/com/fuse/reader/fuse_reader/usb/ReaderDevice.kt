@@ -81,6 +81,7 @@ class ReaderDevice {
         while (iterator.hasNext()) {
             val device = iterator.next()
             if (mUsbManager!!.hasPermission(device)) {
+                Log.i("Allen", "已獲取USB權限,開始初始化設備Device")
                 initDevice(device)
             } else {
                 mUsbManager!!.requestPermission(device, mPermissionIntent)
