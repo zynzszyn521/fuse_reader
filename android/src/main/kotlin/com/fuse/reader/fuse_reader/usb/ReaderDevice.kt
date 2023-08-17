@@ -74,6 +74,7 @@ class ReaderDevice {
 
     //搜索usb设备
     fun searchUsb(context: Context) {
+        Log.i("Allen", "開始查找USB設備")
         mUsbManager = context.getSystemService(Context.USB_SERVICE) as UsbManager
         val devices = mUsbManager!!.deviceList
         val iterator: Iterator<UsbDevice> = devices.values.iterator()

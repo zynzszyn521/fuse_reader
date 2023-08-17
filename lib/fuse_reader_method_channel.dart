@@ -19,6 +19,19 @@ class MethodChannelFuseReader extends FuseReaderPlatform {
   }
 
   @override
+  Future<String?> searchUsb() async {
+    try {
+      final String result = await methodChannel.invokeMethod('searchUsb');
+      return result;
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        print("Failed to read: ${e.message}");
+      }
+      return "";
+    }
+  }
+
+  @override
   Future<String?> startRead() async {
     try {
       final String result = await methodChannel.invokeMethod('startRead');
@@ -78,5 +91,12 @@ class MethodChannelFuseReader extends FuseReaderPlatform {
     final version =
         await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
+  }
+
+  @override
+  Future<bool?> getConnectionStatus() async {
+    final connection =
+        await methodChannel.invokeMethod<bool>('getConnectionStatus');
+    return connection;
   }
 }

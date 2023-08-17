@@ -5,6 +5,14 @@ abstract class FuseReader {
     return FuseReaderPlatform.instance.getPlatformVersion();
   }
 
+  static Future<bool?> getConnectionStatus() {
+    return FuseReaderPlatform.instance.getConnectionStatus();
+  }
+
+  static Future<String?> searchUsb() async {
+    return await FuseReaderPlatform.instance.searchUsb();
+  }
+
   static Future<String?> startRead() async {
     return await FuseReaderPlatform.instance.startRead();
   }

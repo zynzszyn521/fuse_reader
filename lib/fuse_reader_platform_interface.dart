@@ -16,6 +16,10 @@ abstract class FuseReaderPlatform extends PlatformInterface {
     _instance = instance;
   }
 
+  Future<String?> searchUsb() {
+    throw UnimplementedError('searchUsb() has not been implemented.');
+  }
+
   Future<String?> startRead() {
     throw UnimplementedError('startRead() has not been implemented.');
   }
@@ -34,5 +38,9 @@ abstract class FuseReaderPlatform extends PlatformInterface {
 
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
+  }
+
+  Future<bool?> getConnectionStatus() {
+    throw UnimplementedError('getConnectionStatus() has not been implemented.');
   }
 }

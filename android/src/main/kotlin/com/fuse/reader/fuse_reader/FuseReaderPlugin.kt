@@ -1,25 +1,26 @@
 package com.fuse.reader.fuse_reader
 
 import android.content.Context
+import android.hardware.usb.UsbDeviceConnection
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.NonNull
 import com.cmcid.myreader.uhf.Reader.beginInv
 import com.cmcid.myreader.uhf.UHF_DEF.MSG_MSG
 import com.cmcid.myreader.usb.ReaderDevice
-
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-
 import java.util.Timer
 import java.util.TimerTask
+
 
 /** FuseReaderPlugin */
 class FuseReaderPlugin: FlutterPlugin, MethodCallHandler {
 
+  private lateinit var context:Context
   private val readCardInterval = 1000L //读卡频率
   private val timer = Timer()
   private lateinit var channel : MethodChannel
@@ -31,12 +32,20 @@ class FuseReaderPlugin: FlutterPlugin, MethodCallHandler {
     channel.setMethodCallHandler(this)
     mReaderDevice = ReaderDevice()
     mReaderDevice.setHandler(handler)
-    registerReceiver(flutterPluginBinding.applicationContext)
+    context = flutterPluginBinding.applicationContext
+    registerReceiver(context)
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
     if (call.method == "getPlatformVersion") {
       result.success("Android ${android.os.Build.VERSION.RELEASE}")
+    }else if (call.method == "getConnectionStatus") {
+      val isConnected = mReaderDevice.connection!=null
+      result.success(isConnected)
+    }else if (call.method == "searchUsb") {
+      // 註冊並獲取權限
+      mReaderDevice.searchUsb(context)
+      result.success("註冊並獲取權限請求成功。。。。。")
     }else if (call.method == "startRead") {
       // 手動讀卡
       val ret = beginInv()

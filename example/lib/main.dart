@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    //initPlatformState();
 
     _readResultSubscription = FuseReader.onReadResult.listen((readResult) {
       var result = json.decode(readResult);
@@ -66,7 +66,11 @@ class _MyAppState extends State<MyApp> {
             Text('Running on: $_platformVersion\n'),
             Text('Read Data: $_readResult\n'),
             IconButton(
-                onPressed: () {
+                onPressed: () async {
+                  bool? bb = await FuseReader.getConnectionStatus();
+                  if (bb == false) {
+                    await FuseReader.regReceiver();
+                  }
                   _startRead();
                 },
                 icon: const Icon(Icons.nfc)),
@@ -84,7 +88,8 @@ class _MyAppState extends State<MyApp> {
 
   void _startRead() async {
     try {
-      String? aa = await FuseReader.startRead();
+      //String? aa = await FuseReader.startRead();
+      String? aa = await FuseReader.startAutoRead();
       print("手動執行掃碼結果：" + aa!);
     } on Exception catch (e) {
       print(e.toString());
