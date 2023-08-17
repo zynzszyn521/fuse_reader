@@ -122,8 +122,10 @@ class ReaderDevice {
                 endpointIn!!
             )
             startReading()
+            Log.i("Allen", "初始化設備Device返回true")
             return true
         }
+        Log.i("Allen", "初始化設備Device返回false")
         return false
     }
 
