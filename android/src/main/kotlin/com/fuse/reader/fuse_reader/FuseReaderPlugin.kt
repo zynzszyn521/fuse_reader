@@ -40,7 +40,8 @@ class FuseReaderPlugin: FlutterPlugin, MethodCallHandler {
     }else if (call.method == "startRead") {
       // 手動讀卡
       val ret = beginInv()
-      mReaderDevice.sendGetID()
+      mReaderDevice.sendGetCardID()
+      //mReaderDevice.sendGetID()
       result.success("手動讀卡調用成功。。。。。")
     }else if (call.method == "startAutoRead") {
       // 启动自动读卡任务
@@ -74,7 +75,7 @@ class FuseReaderPlugin: FlutterPlugin, MethodCallHandler {
   private fun startAutoReadingCards() {
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-              mReaderDevice.sendGetID()
+              mReaderDevice.sendGetCardID()
             }
         }, 0, readCardInterval)
   }

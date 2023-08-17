@@ -28,13 +28,13 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
 
     _readResultSubscription = FuseReader.onReadResult.listen((readResult) {
-      // Map<String, dynamic> result = json.decode(readResult);
-      // String cardno = result['cardno'];
+      var result = json.decode(readResult);
+      String cardno = result['cardno'];
       // String sno = result['sno'];
       // String empno = result['empno'];
       // String empname = result['empname'];
       setState(() {
-        _readResult = readResult;
+        _readResult = cardno;
       });
     });
   }

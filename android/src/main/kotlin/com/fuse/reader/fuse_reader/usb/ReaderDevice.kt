@@ -125,7 +125,7 @@ class ReaderDevice {
         return false
     }
 
-    //开线程读取数据
+    //开线程讀取工號和姓名等信息（目前只支持方形綠色卡機）
     fun sendGetID() {
         val buf = ByteArray(64)
         memset(buf, 0, 0.toByte(), 64)
@@ -138,6 +138,35 @@ class ReaderDevice {
         buf[6] = 0
         connection!!.bulkTransfer(endpointOut, buf, 64, 1000)
     }
+
+    //开线程讀取硬卡號信息
+    fun sendGetCardID() {
+        val buf = ByteArray(64)
+        memset(buf, 0, 0.toByte(), 64)
+        buf[0] = 0x1B
+        buf[1] = 0x01
+        buf[2] = 0
+        buf[3] = 0
+        buf[4] = 0
+        buf[5] = 0
+        buf[6] = 0
+        connection!!.bulkTransfer(endpointOut, buf, 64, 1000)
+    }
+
+    //开线程读取数据
+    fun sendGetVersion() {
+        val buf = ByteArray(64)
+        memset(buf, 0, 0.toByte(), 64)
+        buf[0] = 0x1B
+        buf[1] = 0x04
+        buf[2] = 0
+        buf[3] = 0
+        buf[4] = 0
+        buf[5] = 0
+        buf[6] = 0
+        connection!!.bulkTransfer(endpointOut, buf, 64, 1000)
+    }
+
 
     protected fun recvPkgData(bytes: ByteArray, size: Int) {
         Log.i("Allen", "執行讀卡並接收到內容")
@@ -184,6 +213,19 @@ class ReaderDevice {
 
     protected fun recvData(cmd: Byte, seq: Byte, data: ByteArray, size: Int) {
         when (cmd) {
+            CMD_CARDID -> {
+                var obj: Any? = null
+                if (size >= 4) {
+                    var idValue = arrByte2String(data, 0, 4)
+                    obj = JSONObject()
+                    obj.put("cardno", idValue.replace(" ", ""))
+                    handler!!.obtainMessage(
+                        MSG_MSG, size, 0, obj
+                    ).sendToTarget()
+                }
+            }
+
+            CMD_VER -> {}
             CMD_EMP -> {
                 var obj: Any? = null
                 val cardno = arrByte2String(data, 0, 4)
@@ -202,20 +244,18 @@ class ReaderDevice {
                 } catch (e: UnsupportedEncodingException) {
                     e.printStackTrace()
                 }
-                obj = """
-                $cardno
-                $sno
-                $empno
-                ${empname!!.trim { it <= ' ' }}
-                ===================
-                """.trimIndent()
-//                Log.i("Allen", "執行讀卡並接收到內容"+empno)
-//                val jsonObject = JSONObject()
-//                jsonObject.put("cardno", cardno)
-//                jsonObject.put("sno", sno)
-//                jsonObject.put("empno", empno)
-//                jsonObject.put("empname", empname?.trim())
-//                obj = jsonObject.toString()
+//                obj = """
+//                $cardno
+//                $sno
+//                $empno
+//                ${empname!!.trim { it <= ' ' }}
+//                ===================
+//                """.trimIndent()
+                obj = JSONObject()
+                obj.put("cardno", cardno.replace(" ", ""))
+                obj.put("sno", sno)
+                obj.put("empno", empno)
+                obj.put("empname", empname?.trim())
                 
                 handler!!.obtainMessage(
                     MSG_MSG, size, 0, obj
@@ -291,6 +331,8 @@ class ReaderDevice {
     companion object {
         const val START_CODE = 0x1B.toByte()
         const val HEAD_LENGTH = 6
+        const val CMD_CARDID = 0x01.toByte()
+        const val CMD_VER = 0x04.toByte()
         const val CMD_EMP = 0x1A.toByte()
         private const val ACTION_DEVICE_PERMISSION = "com.cmcid.USB_PERMISSION"
     }
