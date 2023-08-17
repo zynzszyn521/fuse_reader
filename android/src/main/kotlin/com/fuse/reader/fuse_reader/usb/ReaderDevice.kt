@@ -111,9 +111,11 @@ class ReaderDevice {
             //if(mUsbEndpointIn!=null && mUsbEndpointOut!=null)break;
         }
         if (endpointIn == null || endpointOut == null) {
+            Log.i("Allen", "初始化設備Device,endpointIn為空返回false")
             return false
         }
         //mUsbInterface = usbInterface;
+        Log.i("Allen", "初始化設備Device,開始執行openDevice")
         connection = mUsbManager!!.openDevice(device)
         if (connection != null) {
             setConnection(
