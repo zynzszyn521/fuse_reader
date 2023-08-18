@@ -23,6 +23,8 @@ import com.cmcid.myreader.util.Common.memcpy
 import com.cmcid.myreader.util.Common.memset
 import org.json.JSONObject
 import java.io.UnsupportedEncodingException
+import java.util.Timer
+import java.util.TimerTask
 
 class ReaderDevice {
     private var head_length = 0
@@ -43,6 +45,8 @@ class ReaderDevice {
     private var mReadingthread: Thread? = null
     private var isReading = false
     private var handler: Handler? = null
+    private val readCardInterval = 1000L //读卡频率
+    private val timer = Timer() //循環讀卡計時器
 
     //获取设备权限广播
     private val mUsbPermissionReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -53,7 +57,14 @@ class ReaderDevice {
                     val device =
                         intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        device?.let { initDevice(it) }
+                        device?.let {
+                            // 授予了USB權限，初始化設備並開始自動讀卡
+                            val isInitialized = initDevice(it)
+                            if (isInitialized) {
+                                timer?.cancel()
+                                startAutoReadingCards()
+                            }
+                        }
                     }
                 }
             }
@@ -81,8 +92,11 @@ class ReaderDevice {
         while (iterator.hasNext()) {
             val device = iterator.next()
             if (mUsbManager!!.hasPermission(device)) {
-                Log.i("Allen", "已獲取USB權限,開始初始化設備Device")
-                initDevice(device)
+                val isInitialized = initDevice(it)
+                if (isInitialized) {
+                    timer?.cancel()
+                    startAutoReadingCards()
+                }
             } else {
                 mUsbManager!!.requestPermission(device, mPermissionIntent)
             }
@@ -129,6 +143,18 @@ class ReaderDevice {
         }
         Log.i("Allen", "初始化設備Device返回false")
         return false
+    }
+
+    fun startAutoReadingCards() {
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                sendGetCardID()
+            }
+        }, 0, readCardInterval)
+    }
+
+    fun stopAutoReadingCards() {
+        timer?.cancel()
     }
 
     //开线程讀取工號和姓名等信息（目前只支持方形綠色卡機）

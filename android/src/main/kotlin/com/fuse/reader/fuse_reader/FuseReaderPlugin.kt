@@ -13,16 +13,12 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import java.util.Timer
-import java.util.TimerTask
 
 
 /** FuseReaderPlugin */
 class FuseReaderPlugin: FlutterPlugin, MethodCallHandler {
 
   private lateinit var context:Context
-  private val readCardInterval = 1000L //读卡频率
-  private val timer = Timer()
   private lateinit var channel : MethodChannel
   private val CHANNEL_NAME = "com.fuse.reader/methods"
   private lateinit var mReaderDevice: ReaderDevice
@@ -54,11 +50,11 @@ class FuseReaderPlugin: FlutterPlugin, MethodCallHandler {
       result.success("手動讀卡調用成功。。。。。")
     }else if (call.method == "startAutoRead") {
       // 启动自动读卡任务
-      startAutoReadingCards()
+      mReaderDevice.startAutoReadingCards()
       result.success("自动读卡任务已启动")
     } else if (call.method == "stopAutoRead") {
       // 停止自动读卡任务
-      stopAutoReadingCards()
+      mReaderDevice.stopAutoReadingCards()
        result.success("自动读卡任务已停止")
     } else {
       result.notImplemented()
@@ -79,18 +75,6 @@ class FuseReaderPlugin: FlutterPlugin, MethodCallHandler {
   private fun unregisterReceiver(context: Context) {
     //取消注册
     mReaderDevice.closeUsbService(context)
-  }
-
-  private fun startAutoReadingCards() {
-        timer.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-              mReaderDevice.sendGetCardID()
-            }
-        }, 0, readCardInterval)
-  }
-
-  private fun stopAutoReadingCards() {
-        timer.cancel()
   }
 
   private val handler: Handler = Handler(Looper.getMainLooper()) { msg ->
