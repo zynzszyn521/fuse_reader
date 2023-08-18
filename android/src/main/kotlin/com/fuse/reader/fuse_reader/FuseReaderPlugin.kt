@@ -50,6 +50,10 @@ class FuseReaderPlugin: FlutterPlugin, MethodCallHandler {
       result.success("手動讀卡調用成功。。。。。")
     }else if (call.method == "startAutoRead") {
       // 启动自动读卡任务
+      val readInterval = call.argument<Int>("readInterval")
+      if(readInterval!=null){
+        mReaderDevice.readCardInterval = readInterval.toLong();
+      }
       mReaderDevice.startAutoReadingCards()
       result.success("自动读卡任务已启动")
     } else if (call.method == "stopAutoRead") {

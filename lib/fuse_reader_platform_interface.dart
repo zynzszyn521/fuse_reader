@@ -24,7 +24,7 @@ abstract class FuseReaderPlatform extends PlatformInterface {
     throw UnimplementedError('startRead() has not been implemented.');
   }
 
-  Future<String?> startAutoRead() {
+  Future<String?> startAutoRead(int readInterval) {
     throw UnimplementedError('startAutoRead() has not been implemented.');
   }
 

@@ -45,7 +45,8 @@ class ReaderDevice {
     private var mReadingthread: Thread? = null
     private var isReading = false
     private var handler: Handler? = null
-    private val readCardInterval = 1000L //读卡频率
+    private var isAutoReading = false
+    public var readCardInterval: Long = 2000 //读卡频率
     private val timer = Timer() //循環讀卡計時器
 
     //获取设备权限广播
@@ -61,7 +62,7 @@ class ReaderDevice {
                             // 授予了USB權限，初始化設備並開始自動讀卡
                             val isInitialized = initDevice(it)
                             if (isInitialized) {
-                                timer?.cancel()
+                                Log.i("Allen", "授權成功,開始執行自動讀卡")
                                 startAutoReadingCards()
                             }
                         }
@@ -92,9 +93,8 @@ class ReaderDevice {
         while (iterator.hasNext()) {
             val device = iterator.next()
             if (mUsbManager!!.hasPermission(device)) {
-                val isInitialized = initDevice(it)
+                val isInitialized = initDevice(device)
                 if (isInitialized) {
-                    timer?.cancel()
                     startAutoReadingCards()
                 }
             } else {
@@ -146,15 +146,21 @@ class ReaderDevice {
     }
 
     fun startAutoReadingCards() {
+        if(isAutoReading){
+            timer.cancel()
+        }
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 sendGetCardID()
             }
         }, 0, readCardInterval)
+        isAutoReading=true
     }
 
     fun stopAutoReadingCards() {
-        timer?.cancel()
+        if(isAutoReading){
+            timer.cancel()
+        }
     }
 
     //开线程讀取工號和姓名等信息（目前只支持方形綠色卡機）

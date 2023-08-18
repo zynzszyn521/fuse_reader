@@ -70,13 +70,10 @@ class _MyAppState extends State<MyApp> {
                   bool? bb = await FuseReader.getConnectionStatus();
                   if (bb == false) {
                     await FuseReader.searchUsb();
-                    await Future.delayed(const Duration(seconds: 30));
-                    //如果點擊允許應用獲取USB權限後
-                    bool? cc = await FuseReader.getConnectionStatus();
-                    bool? aa = cc;
                     //這裡我想知道，獲取到的cc會返回true嗎
+                  } else {
+                    _startRead();
                   }
-                  _startRead();
                 },
                 icon: const Icon(Icons.nfc)),
           ],
@@ -94,7 +91,7 @@ class _MyAppState extends State<MyApp> {
   void _startRead() async {
     try {
       //String? aa = await FuseReader.startRead();
-      String? aa = await FuseReader.startAutoRead();
+      String? aa = await FuseReader.startAutoRead(3);
       print("手動執行掃碼結果：" + aa!);
     } on Exception catch (e) {
       print(e.toString());

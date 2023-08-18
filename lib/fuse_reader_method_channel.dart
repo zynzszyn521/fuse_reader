@@ -45,9 +45,9 @@ class MethodChannelFuseReader extends FuseReaderPlatform {
   }
 
   @override
-  Future<String?> startAutoRead() async {
+  Future<String?> startAutoRead(int readInterval) async {
     try {
-      final String result = await methodChannel.invokeMethod('startAutoRead');
+      final String result = await methodChannel.invokeMethod('startAutoRead', {'readInterval': readInterval});
       return result;
     } on PlatformException catch (e) {
       if (kDebugMode) {
