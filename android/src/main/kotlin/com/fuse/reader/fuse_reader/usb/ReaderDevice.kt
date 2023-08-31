@@ -58,14 +58,22 @@ class ReaderDevice {
                     val device =
                         intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        device?.let {
+                        if (device != null) {
                             // 授予了USB權限，初始化設備並開始自動讀卡
-                            val isInitialized = initDevice(it)
+                            val isInitialized = initDevice(device)
                             if (isInitialized) {
                                 Log.i("Allen", "授權成功,開始執行自動讀卡")
                                 startAutoReadingCards()
                             }
                         }
+                       // device?.let {
+                       //     // 授予了USB權限，初始化設備並開始自動讀卡
+                       //     val isInitialized = initDevice(it)
+                       //     if (isInitialized) {
+                       //         Log.i("Allen", "授權成功,開始執行自動讀卡")
+                       //         startAutoReadingCards()
+                       //     }
+                       // }
                     }
                 }
             }
@@ -96,6 +104,7 @@ class ReaderDevice {
                 val isInitialized = initDevice(device)
                 if (isInitialized) {
                     startAutoReadingCards()
+                    break
                 }
             } else {
                 mUsbManager!!.requestPermission(device, mPermissionIntent)
